@@ -1,0 +1,136 @@
+﻿@foreach (var alert in alerts)
+{
+    <div class="@AlertCssClass(alert)">
+        <button class="btn btn-sm btn-close" @onclick="@(() => RemoveAlert(alert))"></button>
+        <span>@alert.Message</span>
+    </div>
+}
+@code {
+    /// <summary>
+    /// Default html id for this component.
+    /// </summary>
+    [Parameter]
+    public string Id { get; set; } = "default-alert";
+
+    /// <summary>
+    /// If true, the message will fade in and out.
+    /// </summary>
+    [Parameter]
+    public bool Fade { get; set; } = true;
+
+    /// <summary>
+    /// The navigation manager for handling routing.
+    /// </summary>
+    [Inject] NavigationManager _navManager { get; set; }
+
+    /// <summary>
+    /// The actual code behind this Alert Message component.
+    /// </summary>
+    [Inject] IAlertService _alertService { get; set; }
+
+    /// <summary>
+    /// A list of all active alerts.
+    /// </summary>
+    private List<Models.Alert> alerts = new List<Models.Alert>();
+
+    /// <summary>
+    /// When this form is initialized, this is the point of entry.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        _alertService!.OnAlert += OnAlert;
+        _navManager!.LocationChanged += OnLocationChange;
+        base.OnInitialized();
+    }
+
+    /// <summary>
+    /// Un registers the events that were subscribed at initialization.
+    /// </summary>
+    public void Dispose()
+    {
+        _alertService!.OnAlert -= OnAlert;
+        _navManager!.LocationChanged -= OnLocationChange;
+    }
+
+    /// <summary>
+    /// If the navigation is to another form, clear the alerts.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void OnLocationChange(object sender, LocationChangedEventArgs e)
+    {
+        _alertService!.Clear(Id);
+    }
+
+    /// <summary>
+    /// When the "Alert" event is raised, add the incoming alert to the UI.
+    /// </summary>
+    /// <param name="alert"></param>
+    private async void OnAlert(Models.Alert alert)
+    {
+        if (alert.Id != Id)
+        {
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(alert.Message))
+        {
+            alerts.RemoveAll(x => !x.KeepAfterRouteChange);
+            alerts.ForEach(x => x.KeepAfterRouteChange = false);
+        }
+        else
+        {
+            alerts.Add(alert);
+            StateHasChanged();
+            if (alert.AutoClose)
+            {
+                await Task.Delay(3000);
+                await RemoveAlert(alert);
+            }
+        }
+    }
+
+    /// <summary>
+    /// When required, remove an alert from the UI
+    /// </summary>
+    /// <param name="alert"></param>
+    /// <returns></returns>
+    private async Task RemoveAlert(Models.Alert alert)
+    {
+        if (!alerts.Contains(alert))
+        {
+            return;
+        }
+        if (Fade)
+        {
+            alert.Fade = true;
+            await Task.Delay(250);
+            alerts.Remove(alert);
+        }
+        else
+        {
+            alerts.Remove(alert);
+        }
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Creates the CSS Class for the various alerts.
+    /// </summary>
+    /// <param name="alert"></param>
+    /// <returns></returns>
+    private string AlertCssClass(Models.Alert alert)
+    {
+        var classes = new List<string> { "alert", "alert-dismissable", "mt-4", "container" };
+        var alertTypeClass = new Dictionary<AlertType, string>();
+        alertTypeClass[AlertType.Success] = "alert-success";
+        alertTypeClass[AlertType.Error] = "alert-danger";
+        alertTypeClass[AlertType.Info] = "alert-info";
+        alertTypeClass[AlertType.Warning] = "alert-warning";
+        classes.Add(alertTypeClass[alert.Type]);
+        if (alert.Fade)
+        {
+            classes.Add("fade");
+        }
+        return string.Join(' ', classes);
+    }
+}

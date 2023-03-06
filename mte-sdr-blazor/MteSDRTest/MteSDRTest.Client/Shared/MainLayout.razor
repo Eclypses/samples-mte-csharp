@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <main>
+        <div class="top-row px-4">
+            <a href="https://eclypses.com/" target="_blank">Eclypses home page</a>
+        </div>
+        <article class="content px-4">
+            <ErrorBoundary>
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <RedirectToLogin />
+                </ErrorContent>
+            </ErrorBoundary>
+        </article>
+    </main>
+</div>

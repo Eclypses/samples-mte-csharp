@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MteSDRTest.Client", "MteSDRTest.Client\MteSDRTest.Client.csproj", "{1E55F089-ADE7-4F34-9A59-F80DE843F7E5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MteSDRTest.Server", "MteSDRTest.Server\MteSDRTest.Server.csproj", "{06943134-6CD8-4475-AF4A-61D85C120F26}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MteSDRTest.Common", "MteSDRTest.Common\MteSDRTest.Common.csproj", "{0C8E09A4-6CDC-42B9-B70F-1E993842A5E0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MteSDRTest.MteWrapper", "MteSDRTest.MteWrapper\MteSDRTest.MteWrapper.csproj", "{F0A8F0A5-2811-42EA-957C-B42951027B86}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{08AA200E-02A6-49DC-84F7-149B219BC8D2}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+		Documentation\SecureBrowserStorage.md = Documentation\SecureBrowserStorage.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E55F089-ADE7-4F34-9A59-F80DE843F7E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E55F089-ADE7-4F34-9A59-F80DE843F7E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E55F089-ADE7-4F34-9A59-F80DE843F7E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E55F089-ADE7-4F34-9A59-F80DE843F7E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06943134-6CD8-4475-AF4A-61D85C120F26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06943134-6CD8-4475-AF4A-61D85C120F26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06943134-6CD8-4475-AF4A-61D85C120F26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06943134-6CD8-4475-AF4A-61D85C120F26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C8E09A4-6CDC-42B9-B70F-1E993842A5E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C8E09A4-6CDC-42B9-B70F-1E993842A5E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C8E09A4-6CDC-42B9-B70F-1E993842A5E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C8E09A4-6CDC-42B9-B70F-1E993842A5E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0A8F0A5-2811-42EA-957C-B42951027B86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0A8F0A5-2811-42EA-957C-B42951027B86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0A8F0A5-2811-42EA-957C-B42951027B86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0A8F0A5-2811-42EA-957C-B42951027B86}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {52CBBF3C-7659-48DD-AD0D-F55F426F5D72}
+	EndGlobalSection
+EndGlobal

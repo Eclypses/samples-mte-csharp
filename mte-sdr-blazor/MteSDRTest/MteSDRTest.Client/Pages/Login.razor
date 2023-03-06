@@ -1,0 +1,125 @@
+﻿@layout LoginLayout
+@page "/login"
+
+<div class="col-md-6 offset-md-3 mt-5">
+    <div class="alert alert-info">
+        Enter a valid user id and password.
+    </div>
+    <div class="card">
+        <h4 class="card-header">Login to the Eclypses SDR Test</h4>
+        <div class="card-body">
+            <AlertMessage />
+            <EditForm Model="@_loginModel" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <div class="form-group">
+                    <label>User</label>
+                    <InputText @bind-Value="_loginModel.UserId" class="form-control" />
+                    <ValidationMessage For="@(() => _loginModel.UserId)" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <InputText type="password" @bind-Value="_loginModel.Password" class="form-control" />
+                    <ValidationMessage For="@(() => _loginModel.Password)" />
+                </div>
+                <button class="btn my-2 btn-outline-primary" style="width:fit-content">
+                    @if (_processing)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    Login
+                </button>
+                <ValidationSummary />
+                @if (!string.IsNullOrWhiteSpace(_error))
+                {
+                    <div class="alert alert-danger mt-3 mb-0">@_error</div>
+                }
+            </EditForm>
+        </div>
+    </div>
+</div>
+@code {
+    //
+    // Manages the UserPrincipal
+    //
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateDelegate { get; set; }
+
+    /// <summary>
+    ///  The StateContainer that contains data for this session in Browser Memory
+    ///  It is not necessarily secure.
+    /// </summary>
+    [Inject]
+    StateContainer _state { get; set; }
+
+    /// <summary>
+    /// Manages routing within the WASM application.
+    /// </summary>
+    [Inject]
+    NavigationManager _navManager { get; set; }
+
+    /// <summary>
+    /// Manages interactions to the proxy for authentication.
+    /// </summary>
+    [Inject]
+    IAuthService _authService { get; set; }
+
+    /// <summary>
+    /// The data behind this form.
+    /// </summary>
+    private ClientCredentials _loginModel { get; set; } = new ClientCredentials
+        {
+            UserId = "somebody@somedomain.com",
+            Password = "Passw0rd!"
+        };
+
+    private bool _processing { get; set; }
+    private string _error { get; set; }
+
+    /// <summary>
+    /// The model with information regarding an authenticated client.
+    /// </summary>
+    private ClientUserModel _clientUserModel { get; set; }
+
+    /// <summary>
+    /// The entry point for this form (and actually the application).
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    /// <summary>
+    /// When the data is entered correctly and the form is submitted, this is invoked.
+    /// </summary>
+    /// <returns></returns>
+    private async Task HandleValidSubmit()
+    {
+        _processing = true;
+        try
+        {
+            _clientUserModel = await _authService!.Login(_loginModel);
+            if (_clientUserModel.Success)
+            {
+                _state!.Reset(); // Set the properties of State to NULL so that this logged in user can re-populate them.
+                var authState = await authenticationStateDelegate!;
+                _state.TheUserPrincipal = authState!.User;
+                _navManager!.NavigateTo("/showdata"); // navigate to the main demo page.
+            }
+            else
+            {
+                throw new ApplicationException($"Login failed for {_loginModel.UserId}");
+            }
+        }
+        catch (Exception)
+        {
+            _loginModel.Password = string.Empty;
+            _error = $"Login failed either {_loginModel.UserId} is unknown, the password is not valid, or you are not authorized to use this.";
+            _processing = false;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+}
