@@ -1,0 +1,115 @@
+﻿@page "/showdata"
+@using MteSDRTest.Client.Helpers
+<h3>Testing Data</h3>
+<div>
+    <AlertMessage />
+    <EditForm Model="@_dataDisplayModel">
+        <p>
+            This form shows data stored in Session Storage (temporary) and Local Storage (permanent).
+            If you stop this app, and restart it, the Session Storage will be empty until you
+            type something in and then click the <b>Save</b> button.  However, if you restart the
+            app, you will see that the Local Storage is still there.
+        </p>
+        <p>
+            You will also see the MTE protected data prior to revealing it. This is the same as if
+            you looked at the actual local storage and or session storage within the browser itself.
+        </p>
+        <div class="form-group">
+            <label>Session Storage</label>
+            <InputTextArea @bind-Value="_dataDisplayModel.SessionClearData" class="form-control" />
+            <label class="mt-3">Actual data in <i>session</i> storage</label>
+            <InputTextArea @bind-Value="_dataDisplayModel.SessionProtectedData" readonly tabindex="-1" rows="10" class="form-control my-1" />
+        </div>
+        <button class="btn btn-outline-primary" @onclick="btnSaveSessionData_Clicked">Save Session Data</button>
+        <button class="btn btn-outline-primary" @onclick="btnRemoveSessionData_Clicked">Remove Session Data</button>
+        <div class="form-group mt-5">
+            <label>Local Storage</label>
+            <InputTextArea @bind-Value="_dataDisplayModel.LocalClearData" class="form-control" />
+            <label class="mt-3">Actual data in <i>local</i> storage</label>
+            <InputTextArea @bind-Value="_dataDisplayModel.LocalProtectedData" readonly tabindex="-1" rows="10" class="form-control my-1" />
+        </div>
+        <button class="btn btn-outline-primary" @onclick="btnSaveLocalData_Clicked">Save Local Data</button>
+        <button class="btn btn-outline-primary" @onclick="btnRemoveLocalData_Clicked">Remove Local Data</button>
+    </EditForm>
+</div>
+
+
+@code {
+    [Inject] IMteService _mte { get; set; }
+    [Inject] IBrowserStorageHelper _browserStorage { get; set; }
+    [Inject] IAlertService _alertService { get; set; }
+
+    private DataDisplayModel _dataDisplayModel { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _dataDisplayModel = new DataDisplayModel();
+        //
+        // Obtain whatever raw values are currently in the browser's storage to display.
+        //
+        _dataDisplayModel.SessionClearData = await _mte.ReadBrowserData(Constants.DISPLAY_SESSION_ITEM_KEY);
+        _dataDisplayModel.LocalClearData = await _mte.ReadBrowserData(Constants.DISPLAY_LOCAL_ITEM_KEY, true);
+        //
+        // Obtain the revealed values that are currently in the browser's storage via the SDR.
+        //
+        _dataDisplayModel.SessionProtectedData = await _browserStorage.GetSessionStorage($"{Constants.DISPLAY_SESSION_ITEM_FILE}/{Constants.DISPLAY_SESSION_ITEM_KEY}");
+        _dataDisplayModel.LocalProtectedData = await _browserStorage.GetLocalStorage($"{Constants.DISPLAY_LOCAL_ITEM_FILE}/{Constants.DISPLAY_LOCAL_ITEM_KEY}");
+    }
+
+    public async Task btnSaveSessionData_Clicked()
+    {
+        //
+        // Write the data to the SDR's session storage.
+        //
+        await _mte.WriteBrowserData(Constants.DISPLAY_SESSION_ITEM_KEY, _dataDisplayModel.SessionClearData);
+
+        //
+        // Get the "raw" data to display
+        //
+        _dataDisplayModel.SessionProtectedData = await _browserStorage.GetSessionStorage($"{Constants.DISPLAY_SESSION_ITEM_FILE}/{Constants.DISPLAY_SESSION_ITEM_KEY}");
+        _alertService.Info("Session Storage has been saved to the SDR.");
+    }
+
+    public async Task btnSaveLocalData_Clicked()
+    {
+        //
+        // Write the data to the SDR's local storage.
+        //
+        await _mte.WriteBrowserData(Constants.DISPLAY_LOCAL_ITEM_KEY, _dataDisplayModel.LocalClearData, true);
+
+        //
+        // Get the "raw" data to display
+        //
+        _dataDisplayModel.LocalProtectedData = await _browserStorage.GetLocalStorage($"{Constants.DISPLAY_LOCAL_ITEM_FILE}/{Constants.DISPLAY_LOCAL_ITEM_KEY}");
+        _alertService.Info("Local Storage has been saved to the SDR.");
+    }
+
+    public async Task btnRemoveSessionData_Clicked()
+    {
+        //
+        // Remove the data from the SDR's session storage.
+        //
+        await _mte.RemoveBrowserData(Constants.DISPLAY_SESSION_ITEM_KEY);
+        _dataDisplayModel.SessionClearData = string.Empty;
+
+        //
+        // Get the "raw" data to display
+        //
+        _dataDisplayModel.SessionProtectedData = await _browserStorage.GetSessionStorage($"{Constants.DISPLAY_SESSION_ITEM_FILE}/{Constants.DISPLAY_SESSION_ITEM_KEY}");
+        _alertService.Info("Session Storage has been removed from the SDR.");
+    }
+
+    public async Task btnRemoveLocalData_Clicked()
+    {
+        //
+        // Remove the data from the SDR's local storage.
+        //
+        await _mte.RemoveBrowserData(Constants.DISPLAY_LOCAL_ITEM_KEY, true);
+        _dataDisplayModel.LocalClearData = string.Empty;
+        //
+        // Get the "raw" data to display
+        //
+        _dataDisplayModel.LocalProtectedData = await _browserStorage.GetLocalStorage($"{Constants.DISPLAY_LOCAL_ITEM_FILE}/{Constants.DISPLAY_LOCAL_ITEM_KEY}");
+        _alertService.Info("Local Storage has been removed from the SDR.");
+    }
+}

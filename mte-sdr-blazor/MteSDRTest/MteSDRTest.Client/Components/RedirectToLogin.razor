@@ -1,0 +1,20 @@
+﻿@code {
+    /// <summary>
+    /// Manages the internal routing in this WASM app.
+    /// </summary>
+    [Inject] 
+    NavigationManager _navManager { get; set; }
+    
+    /// <summary>
+    /// When this component is initialized, this is the point of entry.
+    /// </summary>
+    /// <returns></returns>
+    protected override void OnInitialized()
+    {
+        if (_navManager != null)
+        {
+            _navManager.NavigateTo("/login");
+        }
+        base.OnInitialized();
+    }
+}
